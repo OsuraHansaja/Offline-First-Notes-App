@@ -40,13 +40,29 @@
         </div>
        </div>
     </div>
-    <div class="flex flex-col flex-grow">
-      <!-- Main Content -->
+    <div class="flex flex-col flex-grow" v-if="Object.keys(activeNote).length">
+      <!-- Main Content -Editor -->
       <div class="flex flex-col flex-grow overflow-auto">
         <editor-content :editor="editor" />
       </div>
       <div class="h-16 bg-gray-100 border-t border-gray-300 flex items-center justify-end p-4">
         <button @click="saveNote" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-black focus:outline-none">Save Note</button>
+      </div>
+    </div>
+    <div class="flex flex-col flex-grow" v-else>
+      <!-- Main Content -Notes List -->
+      <div class="flex flex-col flex-grow overflow-auto">
+        <div v-for="note in notes" :key="note.created">
+          <div class="flex px-4 pt-3 pb-4">
+            <div class="prose my-2 mx-auto">
+              <div>
+                <span class="ml-1 text-xs text-gray-500">Created on {{ new Date(note.created).toLocaleString() }}</span>
+              </div>
+              <div v-html="note.content"></div>
+            </div>
+          </div>
+          <hr class="w-full">
+        </div>
       </div>
     </div>
   </div>
