@@ -8,6 +8,9 @@
       <div class="flex flex-col flex-grow overflow-auto">
         <editor-content :editor="editor" />
       </div>
+      <div class="h-16 bg-gray-100 border-t border-gray-300 flex items-center justify-end p-4">
+        <button @click="saveNote" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-black focus:outline-none">Save Note</button>
+      </div>
     </div>
   </div>
 </template>
@@ -51,7 +54,7 @@ export default{
   methods:{
     async getDatabase(){
       return new Promise((resolve, reject) => {
-        let db = window.indexedDB.open("notes");
+        let db = window.indexedDB.open("notes", 2);
 
         db.onerror = e => {
           reject('Error opening the database.')
@@ -62,8 +65,22 @@ export default{
         };
         db.onupgradeneeded = e => {
           console.log('db.onupgraded', e)
-          e.target.result.createObjectStore("notes");
+          e.target.result.deleteObjectStore("notes");
+          e.target.result.createObjectStore("notes", { keyPath: "created" });
         };
+      });
+    },
+    async saveNote(){
+      return new Promise((resolve, reject) => {
+        let transaction = this.database.transaction('notes', 'readwrite')
+        transaction.oncomplete = e => {
+          resolve();
+        }
+        let now =new Date();
+        transaction.objectStore('notes').add({
+          content: this.editor.getHTML(),
+          created: now.getTime()
+        });
       });
     }
   }
