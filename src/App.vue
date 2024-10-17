@@ -3,9 +3,39 @@
     <div class="flex flex-col flex-shrink-0 w-64 border-r border-gray-300 bg-gray-100">
       <!-- Sidebar -->
        <div class="h-0 overflow-auto flex-grow">
+        <div class="flex items-center h-8 px-3 group mt-4">
+          <div class="flex items-center flex-grow focus:outline-none">
+            <a 
+              class="ml-2 leading-none font-medium text-sm" 
+              href="#"
+              @click.prevent="showAllNotes"
+            >All Notes</a>
+          </div>
+          <button class="add-note" @click="addNewNote">
+            <svg
+            class="h-5 w-5"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+            />
+            </svg>
+          </button>
+        </div>
         <div class="mt-4">
-          <a class="flex items-center h-8 text-sm pl-8 pr-3" href="#" v-for="note in notes" :key="note.created">
-            <span class="ml-2 leading-none">{{  new Date(note.created).toLocaleString() }}</span>
+          <a 
+            class="flex items-center h-8 text-sm pl-8 pr-3" 
+            href="#" 
+            v-for="note in notes" 
+            :key="note.created"
+            @click.prevent="openNote(note)"
+          >
+              <span class="ml-2 leading-none">{{  new Date(note.created).toLocaleString() }}</span>
           </a>
         </div>
        </div>
@@ -37,7 +67,8 @@ export default{
     return{
       editor:null,
       database:null,
-      notes: []
+      notes: [],
+      activeNote: {}
     }
   },
   async created(){
@@ -82,7 +113,7 @@ export default{
     },
     async saveNote(){
       return new Promise((resolve, reject) => {
-        let transaction = this.database.transaction('notes', 'readwrite')
+        /*let transaction = this.database.transaction('notes', 'readwrite')
         transaction.oncomplete = e => {
           resolve();
         }
@@ -93,7 +124,35 @@ export default{
         };
         
         this.notes.unshift(note)
-        transaction.objectStore('notes').add(note);
+        transaction.objectStore('notes').add(note);*/
+
+        let noteRequest = this.database.transaction('notes', 'readwrite')
+          .objectStore('notes')
+          .get(this.activeNote.created);
+
+        noteRequest.onerror = e => {
+          reject('Error saving the note in the database.')
+        };
+
+        noteRequest.onsuccess = e => {
+          let note = e.target.result;
+          note.content = this.editor.getHTML();
+
+          let updateRequest = this.database.transaction('notes', 'readwrite')
+            .objectStore('notes')
+            .put(note);
+
+          updateRequest.onerror = e => {
+            reject('Error storing the updated note in the database.');
+          };
+
+          updateRequest.onsuccess = e => {
+            let noteIndex = this.notes.findIndex(n => n.created == note.created);
+            this.notes[noteIndex] = note;
+            resolve();
+
+          };
+        };
       });
     },
 
@@ -107,12 +166,44 @@ export default{
             resolve(e.target.result);
           };
       });
+    },
+
+    openNote(note){
+      this.editor.commands.setContent(note.content);
+      this.activeNote = note;
+    },
+
+    showAllNotes(){
+      this.editor.commands.clearContent();
+      this.activeNote = {};
+
+    },
+
+    addNewNote(){
+      return new Promise((resolve, reject) => {
+        let transaction = this.database.transaction('notes', 'readwrite')
+        transaction.oncomplete = e => {
+          resolve();
+        }
+        let now =new Date();
+        let note = {
+          content: '',
+          created: now.getTime()
+        };
+        
+        this.notes.unshift(note);
+        this.activeNote = note;
+        transaction.objectStore('notes').add(note);
+      });
+
     }
   }
 }
 
 </script>
 
-
-
-<style></style>
+<style lang="postcss">
+  button.add-note {
+    @apply flex items-center justify-center h-6 w-6 ml-1 rounded hover:bg-gray-300;
+  }
+</style>
