@@ -12,7 +12,7 @@
 - **Add Note**: The plus button (create note) lets you creates a new note.
 - **Sidebar**: The sidebar shows all the previous notes and links to them.
 - **Editor**: Editor page built using the tiptap editor.
-- **Save Notes**: New notes or previously altered notes can be saved to the indexedDB.
+- **Save Notes**: New notes or previously altered notes can be saved to the DB which uses indexedDB.
 
 ---
 
