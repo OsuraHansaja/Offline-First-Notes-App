@@ -46,7 +46,7 @@
 ## Unresolved Issues:
 
 <p align="justify">
-  Due to an error within the node production enviornment, the offline application does not refresh. This will be fixed in an upcoming update.
+  Due to an error within the node production and build enviornment, the offline application does not refresh. This will be fixed in an upcoming update.
 </p>
 
 ---
