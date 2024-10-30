@@ -29,15 +29,15 @@
 
 ## Screenshots
 
-### Notes Page
+### NotesPage
 
 ![NotesPage](Screenshots/AllNotesPage.png)
 
-### Empty Editor Page
+### EmptyEditorPage
 
 ![EmptyEditorPage](Screenshots/EditorPageEmpty.png)
 
-### Editor Page
+### EditorPage
 
 ![EditorPage](Screenshots/EditorPage.png)
 
